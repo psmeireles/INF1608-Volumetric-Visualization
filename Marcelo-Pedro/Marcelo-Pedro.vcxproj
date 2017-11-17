@@ -74,7 +74,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="interp.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="matrix.c" />
+    <ClCompile Include="simpson.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="interp.h" />
+    <ClInclude Include="matrix.h" />
+    <ClInclude Include="simpson.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
