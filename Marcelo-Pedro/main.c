@@ -12,10 +12,10 @@
 
 
 double transfer_function (int i, int j, int k, unsigned char *data){
-	if(data[k*NY*NX + j*NX + i] < 0.3)
+	if(data[k*NY*NX + j*NX + i]/255. < 0.3)
 		return 0;
 	else
-		return 0.05*(data[k*NY*NX + (int)floor((double)j)*NX + i] - 0.3);
+		return 0.05*(data[k*NY*NX + j*NX + i]/255. - 0.3);
 }
 
 double intensity_function (int i, int j, int k, unsigned char *data){
@@ -23,7 +23,13 @@ double intensity_function (int i, int j, int k, unsigned char *data){
 	int L = j, h = 4, prev = 0;
 
 	while(prev < L){
-		integer += DoubleSimpson((double) 0, (double) j, i, k, data, transfer_function, &v);
+		if(h < L){
+			DoubleSimpson((double) prev, (double) h, i, k, data, transfer_function, &v);
+		}
+		else{
+			DoubleSimpson((double) prev, (double) L, i, k, data, transfer_function, &v);
+		}
+		integer += v;
 		prev = h;
 		h += 4;
 	}
@@ -47,7 +53,7 @@ double intensity (int i, int k, unsigned char *data){
 		prev = h;
 		h += 4;
 	}
-	return fabs(intensity);
+	return intensity;
 }
 
 void generate_pgm(FILE *file, double *result){
@@ -59,11 +65,15 @@ void generate_pgm(FILE *file, double *result){
 			maior = result[i];
 	}
 
-	fprintf(file, "P2\n%d %d\n%lf\n", NX, NZ, maior);
+	for(i = 0; i < NX*NZ; i++){
+		result[i] = (unsigned char) (result[i]*255/maior);
+	}
+
+	fprintf(file, "P2\n%d %d\n255\n", NX, NZ);
 
 	for(i = 0; i < NX*NZ; i++){
-		fprintf(file, "%lf ", result[i]);
-		if(i % NZ == 0)
+		fprintf(file, "%u ", result[i]);
+		if((i+1) % NZ == 0)
 			fprintf(file, "\n");
 	}
 }
@@ -89,18 +99,19 @@ int main(){
 
 	for(i = 0; i < CTSIZE; i++){
 		fread(&CTscan[i], sizeof(unsigned char), 1, file);
-		printf("%u ", CTscan[i]);
 	}
 
 	printf("head-8bit.raw reading finished\n");
 
+	printf("Calculating the result...\n");
 	for(k = 0; k < NZ; k++){
 		for(i = 0; i < NX; i++){
 			result[k*NX + i] = intensity(i, k, CTscan);
+			//printf("\r%.2f%%", ((float)(k*NX + i))/(NX*NZ));
 		}
 	}
 
-	printf("Generating pgm...\n");
+	printf("\nGenerating pgm...\n");
 
 	generate_pgm(image, result);
 
