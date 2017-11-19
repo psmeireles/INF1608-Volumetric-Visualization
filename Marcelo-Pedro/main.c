@@ -12,10 +12,11 @@
 
 
 double transfer_function (int i, int j, int k, unsigned char *data){
-	if(data[k*NY*NX + j*NX + i]/255. < 0.3)
+	unsigned char c = data[k*NY*NX + j*NX + i];
+	if(c/255. < 0.3)
 		return 0;
 	else
-		return 0.05*(data[k*NY*NX + j*NX + i]/255. - 0.3);
+		return 0.05*(c/255. - 0.3);
 }
 
 double intensity_function (int i, int j, int k, unsigned char *data){
@@ -72,14 +73,18 @@ void generate_pgm(FILE *file, double *result){
 	fprintf(file, "P2\n%d %d\n255\n", NX, NZ);
 
 	for(i = 0; i < NX*NZ; i++){
-		fprintf(file, "%u ", result[i]);
-		if((i+1) % NZ == 0)
+		unsigned char c = (unsigned char) result[i];
+		fprintf(file, "%hhu ", c);
+		printf("%hhu ", c);
+		if((i+1) % NZ == 0){
 			fprintf(file, "\n");
+			printf("\n");
+		}
 	}
 }
 
 int main(){
-	unsigned char *CTscan = (unsigned char*) malloc(CTSIZE*sizeof(char));
+	unsigned char *CTscan = (unsigned char*) malloc(CTSIZE*sizeof(unsigned char)), c;
 	double *result = (double*) malloc(NX*NZ*sizeof(double));
 	FILE *file, *image;
 	int i, k;
@@ -99,6 +104,7 @@ int main(){
 
 	for(i = 0; i < CTSIZE; i++){
 		fread(&CTscan[i], sizeof(unsigned char), 1, file);
+		//fscanf(file, "%hhu ", &CTscan[i]);
 	}
 
 	printf("head-8bit.raw reading finished\n");
