@@ -10,6 +10,7 @@
 #define NY 256
 #define NZ 99
 
+double tol;
 
 double transfer_function (int i, int j, int k, unsigned char *data){
 	unsigned char c = data[k*NY*2*NX + j*2*NX + i];
@@ -25,10 +26,12 @@ double intensity_function (int i, int j, int k, unsigned char *data){
 
 	while(prev < L){
 		if(h < L){
-			DoubleSimpson((double) prev, (double) h, i, k, data, transfer_function, &v);
+			//DoubleSimpson((double) prev, (double) h, i, k, data, transfer_function, &v);
+			v = AdaptiveSimpson((double) prev, (double) h, i, k, data, transfer_function, tol);
 		}
 		else{
-			DoubleSimpson((double) prev, (double) L, i, k, data, transfer_function, &v);
+			//DoubleSimpson((double) prev, (double) L, i, k, data, transfer_function, &v);
+			v = AdaptiveSimpson((double) prev, (double) L, i, k, data, transfer_function, tol);
 		}
 		integer += v;
 		prev = h;
@@ -43,12 +46,16 @@ double intensity (int i, int k, unsigned char *data){
 
 	while(prev < L){
 		if(h < L){
-			DoubleSimpson((double) prev, (double) h, 2*i, k, data, intensity_function, &v);
-			DoubleSimpson((double) prev, (double) h, 2*i + 1, k, data, intensity_function, &w);
+			//DoubleSimpson((double) prev, (double) h, 2*i, k, data, intensity_function, &v);
+			//DoubleSimpson((double) prev, (double) h, 2*i + 1, k, data, intensity_function, &w);
+			v = AdaptiveSimpson((double) prev, (double) h, 2*i, k, data, intensity_function, tol);
+			w = AdaptiveSimpson((double) prev, (double) h, 2*i + 1, k, data, intensity_function, tol);
 		}
 		else{
-			DoubleSimpson((double) prev, (double) L, 2*i, k, data, intensity_function, &v);
-			DoubleSimpson((double) prev, (double) L, 2*i + 1, k, data, intensity_function, &w);
+			//DoubleSimpson((double) prev, (double) L, 2*i, k, data, intensity_function, &v);
+			//DoubleSimpson((double) prev, (double) L, 2*i + 1, k, data, intensity_function, &w);
+			v = AdaptiveSimpson((double) prev, (double) h, 2*i, k, data, intensity_function, tol);
+			w = AdaptiveSimpson((double) prev, (double) h, 2*i + 1, k, data, intensity_function, tol);
 		}
 		intensity += (v + w)/2;
 		prev = h;
@@ -89,6 +96,7 @@ int main(){
 	FILE *file, *image;
 	int i, k;
 	double maior = 0;
+	tol = 0.5e-1;
 
 	file = fopen("head-8bit.raw", "rb");
 	if(file == NULL){
