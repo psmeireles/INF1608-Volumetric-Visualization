@@ -6,13 +6,13 @@
 #include "interp.h"
 
 #define CTSIZE 6488064 // 256*256*99
-#define NX 2*128
+#define NX 128
 #define NY 256
 #define NZ 99
 
 
 double transfer_function (int i, int j, int k, unsigned char *data){
-	unsigned char c = data[k*NY*NX + j*NX + i];
+	unsigned char c = data[k*NY*2*NX + j*2*NX + i];
 	if(c/255. < 0.3)
 		return 0;
 	else
@@ -43,12 +43,12 @@ double intensity (int i, int k, unsigned char *data){
 
 	while(prev < L){
 		if(h < L){
-			DoubleSimpson((double) prev, (double) h, i, k, data, intensity_function, &v);
-			DoubleSimpson((double) prev, (double) h, i + 1, k, data, intensity_function, &w);
+			DoubleSimpson((double) prev, (double) h, 2*i, k, data, intensity_function, &v);
+			DoubleSimpson((double) prev, (double) h, 2*i + 1, k, data, intensity_function, &w);
 		}
 		else{
-			DoubleSimpson((double) prev, (double) L, i, k, data, intensity_function, &v);
-			DoubleSimpson((double) prev, (double) L, i + 1, k, data, intensity_function, &w);
+			DoubleSimpson((double) prev, (double) L, 2*i, k, data, intensity_function, &v);
+			DoubleSimpson((double) prev, (double) L, 2*i + 1, k, data, intensity_function, &w);
 		}
 		intensity += (v + w)/2;
 		prev = h;
