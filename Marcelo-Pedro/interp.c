@@ -12,21 +12,21 @@ double * Chebyshev (int n, double a, double b){
 	return v;
 }
 
-double * NewtonCoef (int n, double * xi, double (*f) (double)){
+double * NewtonCoef (int n, double * xi, int i, int k, unsigned char *data, double (*f) (int i, double j, int k, unsigned char *data)){
 	double *b = (double *) malloc(n*sizeof(double)), **M;
-	int i, j;
+	int cont, j;
 
 	// Creating cache to store Newton Coefficients
 	M = mat_create(n, n);
 
 	for(j = 0; j < n; j++)
-		for(i = j; i >= 0; i--){
-			if(i == j)
-				M[i][j] = f(xi[i]);
+		for(cont = j; cont >= 0; cont--){
+			if(cont == j)
+				M[cont][j] = f(xi[cont], j, k, data);
 			else
-				M[i][j] = (M[i+1][j] - M[i][j-1]) / (xi[j] - xi[i]);
-			if(i == 0)
-				b[j] = M[i][j];
+				M[cont][j] = (M[cont+1][j] - M[cont][j-1]) / (xi[j] - xi[cont]);
+			if(cont == 0)
+				b[j] = M[cont][j];
 		}
 
 	mat_free(n, M);
