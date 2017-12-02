@@ -14,7 +14,7 @@
 double tol;
 
 /*
-// Sem interpolação
+// Sem interpolaï¿½ï¿½o
 double transfer_function (int i, int j, int k, unsigned char *data){
 	unsigned char c = data[k*NY*2*NX + j*2*NX + i];
 	if(c/255. < 0.3)
@@ -23,7 +23,7 @@ double transfer_function (int i, int j, int k, unsigned char *data){
 		return 0.05*(c/255. - 0.3);
 }
 
-// Interpolação por reta
+// Interpolaï¿½ï¿½o por reta
 double transfer_function (int i, double jf, int k, unsigned char *data){
 	
 	int j = floor(jf);
@@ -167,10 +167,11 @@ int main(){
 	for(k = 0; k < NZ; k++){
 		for(i = 0; i < NX; i++){
 			result[k*NX + i] = intensity(i, k, CTscan);
+			//printf("\r%.2f%%", ((float)(k*NX + i))/(NX*NZ));
 		}
 	}
 
-	printf("Generating pgm...\n");
+	printf("\nGenerating pgm...\n");
 
 	generate_pgm(image, result);
 
